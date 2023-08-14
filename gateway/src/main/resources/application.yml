@@ -1,0 +1,128 @@
+server:
+  reactive:
+    session:
+      cookie:
+        name: "GATEWAYSESSIONID"
+
+logging:
+  level:
+    org.springframework.security: trace
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          #
+          # ClientRegistraiton used for logging users in with OpenID Connect 1.0 (OIDC),
+          # which is an authentication prococol built on OAuth 2.0, and returns an
+          # ID Token to the client application for validating the user's identity.
+          #
+          # Users must consent if the client application requests access to user information,
+          # such as an email address. Standard scopes are profile, phone, address, and email.
+          #
+          oidc-client:
+            client-name: "Continue with Spring Authorization Server"
+            client-id: "oidc-client"
+            client-secret: "oidc"
+            provider: "spring"
+            scope:
+              - "openid"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+          #
+          # ClientRegistration used for making requests using the Client Credentials grant,
+          # which allows a client application to make requests on behalf of themselves.
+          #
+          gateway-client:
+            client-name: "Gateway Client"
+            client-id: "gateway-client"
+            client-secret: "gateway"
+            provider: "spring"
+            scope:
+              - "cashcard:read"
+              - "cashcard:write"
+              - "purchase:read"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "client_credentials"
+          #
+          # ClientRegistration used for making requests to the cashcard-service using the
+          # Authorization Code grant, which allows clients to make requests on behalf of
+          # the currently logged in user.
+          #
+          # Users must consent in order for the client to obtain access tokens with the
+          # listed scopes (privileges).
+          #
+          # Switch authorization-grant-type to "urn:ietf:params:oauth:grant-type:token-exchange"
+          # to use the Token Exchange grant instead.
+          #
+          cashcard-client:
+            client-name: "CashCard Client"
+            client-id: "cashcard-client"
+            client-secret: "cashcard"
+            provider: "spring"
+            scope:
+              - "cashcard:read"
+              - "cashcard:write"
+            redirect-uri: "{baseUrl}/authorize/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+          #
+          # ClientRegistration used for making requests to the purchase-service using the
+          # Authorization Code grant, which allows clients to make requests on behalf of
+          # the currently logged in user.
+          #
+          # Users must consent in order for the client to obtain access tokens with the
+          # listed scopes (privileges).
+          #
+          # Switch authorization-grant-type to "urn:ietf:params:oauth:grant-type:token-exchange"
+          # to use the Token Exchange grant instead.
+          #
+          purchase-client:
+            client-name: "Purchase Client"
+            client-id: "purchase-client"
+            client-secret: "purchase"
+            provider: "spring"
+            scope:
+              - "purchase:read"
+            redirect-uri: "{baseUrl}/authorize/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+        provider:
+          spring:
+            #
+            # On startup, makes a request to http://localhost:9000/.well-known/openid-configuration
+            # to obtain and automatically configure authorization server configuration.
+            #
+            issuer-uri: "http://localhost:9000"
+            #
+            # The following are optional because they are automatically obtained using the issuer-uri above:
+            #
+#            authorization-uri: "${spring.security.oauth2.provider.spring.issuer-uri}/oauth2/authorize"
+#            token-uri: "${spring.security.oauth2.provider.spring.issuer-uri}/oauth2/token"
+#            user-info-uri: "${spring.security.oauth2.provider.spring.issuer-uri}/userinfo"
+#            user-name-attribute: "sub"
+  cloud:
+    gateway:
+      routes:
+        #
+        # Spring Cloud Gateway route for requests to the purchase-service.
+        #
+        - id: "purchases"
+          uri: "http://localhost:8091"
+          predicates:
+            - "Path=/cashcards/*/purchases"
+          filters:
+            - "TokenRelay=gateway-client"
+        #
+        # Spring Cloud Gateway route for requests to the cashcard-service.
+        #
+        # Note: This is listed 2nd for ordering since it overlaps the above path pattern.
+        #
+        - id: "cashcards"
+          uri: "http://localhost:8090"
+          predicates:
+            - "Path=/cashcards/**"
+          filters:
+            - "TokenRelay=gateway-client"

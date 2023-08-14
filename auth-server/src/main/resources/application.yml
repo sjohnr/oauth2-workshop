@@ -1,0 +1,104 @@
+server:
+  port: 9000
+  servlet:
+    session:
+      cookie:
+        name: "AUTHSERVERSESSIONID"
+
+logging:
+  level:
+    org.springframework.security: trace
+
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          oidc-client:
+            registration:
+              client-id: "oidc-client"
+              client-secret: "{noop}oidc"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://localhost:8080/login/oauth2/code/oidc-client"
+              post-logout-redirect-uris:
+                - "http://localhost:8080/login?logout"
+              scopes:
+                - "openid"
+                - "profile"
+                - "email"
+                - "address"
+                - "phone"
+                - "cashcard:read"
+                - "cashcard:write"
+                - "purchase:read"
+            require-authorization-consent: true
+          gateway-client:
+            registration:
+              client-id: "gateway-client"
+              client-secret: "{noop}gateway"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "client_credentials"
+              scopes:
+                - "cashcard:read"
+                - "cashcard:write"
+                - "purchase:read"
+          cashcard-client:
+            registration:
+              client-id: "cashcard-client"
+              client-secret: "{noop}cashcard"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+                - "urn:ietf:params:oauth:grant-type:token-exchange"
+              redirect-uris:
+                - "http://localhost:8080/authorize/cashcard-client"
+              scopes:
+                - "cashcard:read"
+                - "cashcard:write"
+            require-authorization-consent: true
+          purchase-client:
+            registration:
+              client-id: "purchase-client"
+              client-secret: "{noop}purchase"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+                - "urn:ietf:params:oauth:grant-type:token-exchange"
+              redirect-uris:
+                - "http://localhost:8080/authorize/purchase-client"
+              scopes:
+                - "purchase:read"
+            require-authorization-consent: true
+      client:
+        registration:
+          auth0:
+            client-name: "Auth0"
+            client-id: "${auth0.client-id}"
+            client-secret: ${auth0.client-secret}
+            client-authentication-method: "client_secret_post"
+            authorization-grant-type: "authorization_code"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - "openid"
+              - "profile"
+              - "email"
+        provider:
+          auth0:
+            issuer-uri: "${auth0.base-url}/"
+            user-name-attribute: email
+
+auth0:
+  base-url: ${AUTH0_BASE_URL:https://auth0.us.auth0.com}
+  client-id: ${AUTH0_CLIENT_ID:my-client-id}
+  client-secret: ${AUTH0_CLIENT_SECRET:my-client-secret}

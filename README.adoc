@@ -1,0 +1,38 @@
+= Introduction
+
+Welcome to the Spring Authorization Server workshop!
+
+== Getting Started
+
+To prepare for the workshop, perform the following steps ahead of time:
+
+. Clone this repository:
++
+[source,bash]
+----
+git clone https://github.com/sjohnr/oauth2-workshop.git && cd oauth2-workshop
+----
+
+. Download dependencies so they are cached:
++
+[source,bash]
+----
+./gradlew check -x test
+----
++
+or
++
+[source,bash]
+----
+./mvnw package -DskipTests
+----
+
+You are now ready to begin the workshop!
+
+== Notes
+
+This workshop is based on previous workshops and talks, which are available in separate branches of this repository.
+
+* Spring Security and OAuth 2.0: Step-by-Step (https://github.com/sjohnr/oauth2-workshop/tree/main[main], https://github.com/sjohnr/oauth2-workshop/tree/solution[solution]) - SpringOne 2023
+* Building Modern Apps with OAuth2 and Spring (https://github.com/sjohnr/oauth2-workshop/tree/ojug[ojug]) - Omaha Java User Group
+* What's New in Spring Authorization Server 1.3 (https://github.com/sjohnr/oauth2-workshop/tree/springone-2024[springone-2024]) - SpringOne 2024

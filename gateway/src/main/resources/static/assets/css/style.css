@@ -1,0 +1,119 @@
+body {
+    background: #ffffff;
+    font-family: 'Roboto', sans-serif;
+}
+
+.login-box {
+    margin-top: 75px;
+    height: auto;
+    background: #ebf2f2;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.alert {
+    margin-top: 25px;
+}
+
+.login-icon {
+    height: 100px;
+    font-size: 80px;
+    line-height: 100px;
+    background: -webkit-linear-gradient(#68bd45, #78cf49);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.login-title {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 30px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    color: #000000;
+}
+
+.login-form {
+    margin-top: 25px;
+    text-align: left;
+}
+
+input[type=text] {
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 2px solid #68bd45;
+    border-top: 0;
+    border-radius: 0;
+    font-weight: bold;
+    outline: 0;
+    margin-bottom: 20px;
+    padding-left: 0;
+    color: #ECF0F5;
+}
+
+input[type=password] {
+    background-color: #ffffff;
+    border: none;
+    border-bottom: 2px solid #68bd45;
+    border-top: 0;
+    border-radius: 0;
+    font-weight: bold;
+    outline: 0;
+    padding-left: 0;
+    margin-bottom: 20px;
+    color: #ECF0F5;
+}
+
+.form-input {
+    margin-bottom: 40px;
+}
+
+.form-control:focus {
+    border-color: inherit;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-bottom: 2px solid #0DB8DE;
+    outline: 0;
+    background-color: #ffffff;
+    color: #ECF0F5;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0;
+}
+
+label {
+    margin-bottom: 0;
+}
+
+.form-control-label {
+    color: #6C6C6C;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.btn {
+    border-width: 2px;
+    border-radius: 0;
+    letter-spacing: 1px;
+}
+
+.btn-outline-secondary {
+    border-color: #111111;
+    color: #000000;
+    font-weight: bold;
+}
+
+.btn-outline-secondary:hover {
+    border-color: #111111;
+    border-width: 2px;
+    background-color: #111111;
+    color: #ffffff !important;
+}
+
+.login-text {
+    text-align: left;
+    padding-left: 0;
+    color: #A2A4A4;
+}

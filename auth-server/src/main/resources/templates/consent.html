@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!--
+        Based on Bootstrap Login Page
+        https://codepen.io/xmas1224/pen/MWJqbao
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Consent Required</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/img/security.png">
+    <link href="/assets/css/style.css" rel="stylesheet">
+    <script>
+        function cancelConsent() {
+            const form = document.getElementById('consent-form');
+            form.reset();
+            form.submit();
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-icon">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="col-lg-12 login-title">
+                    <span>CONSENT REQUIRED</span>
+                </div>
+                <div class="col-lg-12 login-form">
+                    <div class="alert alert-info" role="alert">
+                        <span class="font-weight-bold text-primary" th:text="${principalName}"></span>, the application <span class="font-weight-bold text-primary" th:text="${clientId}"></span> is requesting permission to access your account.
+                    </div>
+                    <div class="form-group form-input form-control-label">
+                        The following permissions are requested by the above application.
+                        Please review these and consent if you approve.
+                    </div>
+                    <form id="consent-form" method="post" th:action="@{/oauth2/authorize}">
+                        <input type="hidden" name="client_id" th:value="${clientId}">
+                        <input type="hidden" name="state" th:value="${state}">
+                        <div th:each="scope : ${scopes}" class="form-check my-3">
+                            <input type="checkbox" name="scope" th:value="${scope}" th:id="${scope}">
+                            <label class="form-check-label fw-bold px-2" th:for="${scope}" th:text="${scope}"></label>
+                        </div>
+                        <div class="form-group form-input form-control-label" th:if="${not #lists.isEmpty(previouslyApprovedScopes)}">
+                            You have already granted the following permissions to the above application:
+                        </div>
+                        <div th:each="scope : ${previouslyApprovedScopes}" class="form-check my-3">
+                            <input type="checkbox" name="scope" th:value="${scope}" th:id="${scope}" disabled checked>
+                            <label class="form-check-label fw-bold px-2" th:for="${scope}" th:text="${scope}"></label>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-block btn-outline-success">APPROVE</button>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-block btn-outline-danger" onclick="cancelConsent()">DENY</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!--
+        Based on Bootstrap Login Page
+        https://codepen.io/xmas1224/pen/MWJqbao
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <meta name="csrf-token" th:content="${_csrf.token}">
+    <meta name="csrf-header-name" th:content="${_csrf.headerName}">
+    <meta name="context-path" th:content="${contextPath}">
+    <title>Spring Security and OAuth 2.0: Step-by-Step (Workshop)</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css" integrity="sha512-+L4yy6FRcDGbXJ9mPG8MT/3UCDzwR9gPeyFNMCtInsol++5m3bk2bXWKdZjvybmohrAsn3Ua5x8gfLnbE1YkOg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/img/security.png">
+    <link href="/assets/css/style.css" rel="stylesheet">
+
+    <script type="text/javascript" src="/login/webauthn.js"></script>
+    <script type="text/javascript">
+        const contextPath      = document.querySelector('meta[name="context-path"]').content;
+        const csrfToken        = document.querySelector('meta[name="csrf-token"]').content;
+        const csrfHeaderName   = document.querySelector('meta[name="csrf-header-name"]').content;
+        const headers = {};
+        headers[csrfHeaderName] = csrfToken;
+        document.addEventListener('DOMContentLoaded', () => setupLogin(headers, contextPath, document.getElementById('passkey-signin-button')));
+    </script>
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-text">
+                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                        Invalid username or password.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success" role="alert">
+                        You have been logged out.
+                    </div>
+                </div>
+                <div class="col-lg-12 login-icon">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="col-lg-12 login-title">
+                    <span>LOG IN</span>
+                </div>
+                <div class="col-lg-12 login-form">
+                    <form method="post" th:action="@{/login}">
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="username">USERNAME</label>
+                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                        </div>
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="password">PASSWORD</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-block btn-outline-primary">LOG IN</button>
+                        </div>
+                    </form>
+                    <div class="form-group text-center">
+                        <span class="form-control-label small">&ndash; OR &ndash;</span>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" id="passkey-signin-button" class="btn btn-block btn-outline-success">Sign in with a passkey</button>
+                    </div>
+                    <div class="form-group text-center">
+                        <span class="form-control-label small">&ndash; OR &ndash;</span>
+                    </div>
+                    <div class="form-group">
+                        <a class="btn btn-block btn-outline-secondary" href="/oauth2/authorization/auth0" role="link">
+                            <img class="mr-1" src="https://cdn.auth0.com/styleguide/components/1.0.8/media/logos/img/badge.png" width="20" alt="Continue with Auth0">
+                            Continue with Auth0
+                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+        </div>
+    </div>
+
+</body>
+</html>

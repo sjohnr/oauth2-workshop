@@ -1,0 +1,10 @@
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+}
+
+include ':auth-server'
+include ':cashcard-service'
+include ':gateway'
+include ':purchase-service'
