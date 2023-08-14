@@ -1,0 +1,37 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc-client:
+            client-name: "Log In with Spring Authorization Server"
+            client-id: "oidc-client"
+            client-secret: "oidc"
+            provider: "spring"
+            scope:
+              - "openid"
+              - "profile"
+              - "cashcard:read"
+              - "cashcard:write"
+              - "purchase:read"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+        provider:
+          spring:
+            issuer-uri: "http://localhost:9000"
+  cloud:
+    gateway:
+      routes:
+        - id: purchases
+          uri: http://localhost:8091
+          predicates:
+            - Path=/cashcards/*/purchases
+          filters:
+            - TokenRelay=
+        - id: cashcards
+          uri: http://localhost:8090
+          predicates:
+            - Path=/cashcards/**
+          filters:
+            - TokenRelay=
