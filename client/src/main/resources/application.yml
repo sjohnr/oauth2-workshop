@@ -1,0 +1,49 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc-client:
+            client-name: "Log In with Spring Authorization Server"
+            client-id: "oidc-client"
+            client-secret: "oidc"
+            provider: "spring"
+            scope:
+              - "openid"
+              - "profile"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+          cashcard-client:
+            client-name: "Authorize CashCard Client"
+            client-id: "cashcard-client"
+            client-secret: "secret"
+            provider: "spring"
+            scope:
+              - "cashcard:read"
+              - "cashcard:write"
+            redirect-uri: "{baseUrl}/authorize/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+        provider:
+          spring:
+            issuer-uri: "http://localhost:9000"
+  cloud:
+    gateway:
+      routes:
+        - id: cashcards
+          uri: http://localhost:8090
+          predicates:
+            - Path=/cashcards/**
+          filters:
+            - TokenRelay=cashcard-client
+  sql:
+    init:
+      schema-locations:
+        - "classpath:org/springframework/security/oauth2/client/oauth2-client-schema.sql"
+      continue-on-error: true
+      mode: always
+  r2dbc:
+    url: "r2dbc:mysql://localhost:3306/oauth2_workshop?serverZoneId=America/Chicago"
+    username: "spring"
+    password: "spring"

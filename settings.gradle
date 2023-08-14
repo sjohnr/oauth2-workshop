@@ -1,0 +1,9 @@
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+}
+
+include ':api'
+include ':auth-server'
+include ':client'
