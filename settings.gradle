@@ -1,0 +1,10 @@
+pluginManagement {
+	repositories {
+		maven { url 'https://repo.spring.io/milestone' }
+		gradlePluginPortal()
+	}
+}
+
+include ':api'
+include ':auth-server'
+include ':client'
