@@ -28,8 +28,9 @@ public class CashCardController {
     }
 
     @PostMapping
-    public ResponseEntity<CashCard> createCashCard(@RequestBody CashCard cashcard, UriComponentsBuilder ucb) {
-        CashCard added = this.cashcards.save(new CashCard(null, cashcard.amount(), "user"));
+    public ResponseEntity<CashCard> createCashCard(@RequestBody CashCard cashcard, UriComponentsBuilder ucb,
+                                                    Authentication authentication) {
+        CashCard added = this.cashcards.save(new CashCard(null, cashcard.amount(), authentication.getName()));
         URI location = ucb
                 .path("/cashcards/{id}")
                 .buildAndExpand(added.id())
