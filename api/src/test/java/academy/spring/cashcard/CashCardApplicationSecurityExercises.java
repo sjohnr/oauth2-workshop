@@ -1,9 +1,5 @@
 package academy.spring.cashcard;
 
-/*
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
@@ -42,10 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc*/
+@AutoConfigureMockMvc
 class CashCardApplicationSecurityExercises {
 
-	/*
 	@Autowired
 	MockMvc mvc;
 
@@ -73,8 +68,8 @@ class CashCardApplicationSecurityExercises {
 	@Test
 	public void _003_createCashCardStoresOwner() throws Exception {
 		this.mvc.perform(post("/cashcards").with(csrf())
-				.contentType("application/json")
-				.content("""
+						.contentType("application/json")
+						.content("""
 					{
 						"amount" : 250.00
 					}
@@ -165,5 +160,5 @@ class CashCardApplicationSecurityExercises {
 			return new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(new RSAKey.Builder(pub)
 					.privateKey(this.priv).build())));
 		}
-	}*/
+	}
 }
