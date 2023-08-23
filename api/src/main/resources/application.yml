@@ -4,3 +4,4 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:app.pub
+          audiences: cashcard-client
