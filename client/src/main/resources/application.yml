@@ -1,1 +1,20 @@
-
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc-client:
+            client-id: "oidc-client"
+            client-secret: "oidc"
+            provider: "spring"
+            scope:
+              - "openid"
+              - "profile"
+              - "cashcard:read"
+              - "cashcard:write"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+        provider:
+          spring:
+            issuer-uri: "http://localhost:9000"
