@@ -1,0 +1,883 @@
+= Introduction
+
+Welcome to the Spring Security and OAuth 2.0: Step-by-Step workshop!
+
+In this workshop, we'll start with an unsecured REST API, learn why authentication, authorization, and web app defense are necessary.
+Then, we'll secure the REST API using Spring Security and its OAuth 2.0 bearer token authentication support to achieve all three of these goals.
+Next, we'll add an authorization server and client application to interact with this REST API.
+Finally, we'll get to some advanced features of using Spring Authorization Server as an identity federator.
+
+== Getting Started
+
+To prepare for the workshop, perform the following steps ahead of time:
+
+1. Clone this repository:
+
+	git clone https://github.com/sjohnr/oauth2-workshop.git && cd oauth2-workshop
+
+2. Check out the `develop` branch:
+
+	git checkout develop
+
+3. Download dependencies so they are cached:
+
+	./gradlew check -x test
+
+4. Check out the `main` branch:
+
+	git checkout main
+
+You are now ready to begin the workshop!
+
+== Housekeeping
+
+To allow yourself the flexibility to follow along with Josh and Steve (your instructors), please consider the following housekeeping items as we go.
+
+=== Familiar Environment
+
+Please use an environment that is familiar to you.
+Even though we will be using IntelliJ, you do not have to.
+You will most likely have more success at retaining the material if you are not also trying to learn or use an IDE that you aren't familiar with.
+
+=== Solution Commits
+
+In this repo, there is a commit per solution step.
+You can find this in the `solution` branch of the repo.
+You can always reference that branch if you get behind in any of the explanations or want to check your solution with the canonical one.
+The diff links are also referenced in the document later one.
+
+=== Tests
+
+For the first two modules -- Introduction and Resource Server -- there are tests that you can run to confirm that you did the step correctly.
+They are named `\_00x_testName` where `x` is the step number we are currently working on.
+If we are on Step 3, then tests `_001_`, `\_002_`, and `\_003_` should all pass.
+
+Also, they are a good reference for different ways in which you can test your application's security.
+
+=== Spring Academy
+
+Also, this workshop is based off of the https://spring.academy[Spring Academy] course https://spring.academy/courses/spring-academy-secure-rest-api-oauth2[Securing a REST API with OAuth 2.0].
+We invite you to continue your learning after this workshop by creating a free Spring Academy account and using it's just-in-time learning model to further reinforce what we cover today.
+
+== Introduction Snippets
+
+The following listing is a summary of the commands and code changes that I'm going to perform during the introduction section of the workshop.
+You are welcome to copy and paste from here as needed.
+
+=== Hit the `/cashcards` endpoint
+
+_See also https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/unsecured-api[Spring Academy]_
+
+[tabs]
+======
+HTTPie::
++
+[source=bash,role="primary"]
+----
+http :8080/cashcards
+----
+
+cURL::
++
+[source=bash,role="secondary"]
+----
+curl -v localhost:8080/cashcards && echo
+----
+======
+
+=== Add Spring Security
+
+_See also https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/security-defaults[Spring Academy]_
+
+[source=gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-security'
+----
+
+=== Use Basic Authentication
+
+_See also https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/adding-authentication[Spring Academy]_
+
+[tabs]
+======
+HTTPie::
++
+[source=bash,role="primary"]
+----
+export PASSWORD=_enter password here_
+http -a user:$PASSWORD :8080/cashcards
+----
+
+cURL::
++
+[source=bash,role="secondary"]
+----
+export PASSWORD=_enter password here_
+curl -u user:$PASSWORD -v localhost:8080/cashcards && echo
+----
+======
+
+== Resource Server
+
+The following listing is a summary of the commands and code changes that I'm going to perform during the resource server section of the workshop.
+You are welcome to copy and paste from here as needed.
+
+=== Add Bearer Token Authentication
+
+_See also https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/oauth2-and-jwt[Spring Academy]_
+
+[source=gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+----
+
+[source=yaml]
+----
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:app.pub
+----
+
+=== Use Bearer Token Authentication
+
+[tabs]
+======
+HTTPie::
++
+[source=bash,role="primary"]
+----
+export TOKEN=_enter token here_
+http :8080/cashcards "Authorization: Bearer $TOKEN"
+----
+
+cURL::
++
+[source=bash,role="secondary"]
+----
+export TOKEN=_enter token here_
+curl -H "Authorization: Bearer $TOKEN" -v localhost:8080/cashcards && echo
+----
+======
+
+=== Access Authentication
+
+_See also in https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/accessing-authentication-in-spring-mvc[Spring Security]_
+
+=== Add Authorization Rules
+
+[source=java]
+----
+@Configuration
+public class SecurityConfig {
+    @Bean
+    SecurityFilterChain rest(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers(HttpMethod.GET, "/cashcards/**").hasAuthority("SCOPE_cashcard:read")
+                .requestMatchers("/cashcards/**").hasAuthority("SCOPE_cashcard:write")
+            )
+            .oauth2ResourceServer((jwt) -> jwt.jwt(Customizer.withDefaults()));
+        return http.build();
+    }
+}
+----
+
+=== Add Authorization to SQL Query
+
+[source=gradle]
+----
+implementation 'org.springframework.security:spring-security-data'
+----
+
+[source=java]
+----
+@Query("SELECT * FROM cash_card cc WHERE cc.owner = :#{authentication.name}")
+@NonNull
+Iterable<CashCard> findAll();
+----
+
+=== Add Method Security
+
+[source=java]
+----
+@EnableMethodSecurity
+----
+
+[source=java]
+----
+@PostAuthorize("returnObject.body.owner == authentication.name")
+----
+
+=== Add Audience Validation
+
+_See also in https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/spring-academy-secure-rest-api-oauth2-authentication-validate-claims[Spring Security]_
+
+[source=yaml]
+----
+audiences: cashcard-client
+----
+
+=== Add Issuer Validation
+
+_See also in https://spring.academy/courses/spring-academy-secure-rest-api-oauth2/lessons/spring-academy-secure-rest-api-oauth2-authentication-validate-claims[Spring Security]_
+
+[source=yaml]
+----
+issuer-uri: http://localhost:9000
+----
+
+=== Add Trace Logging
+
+[source=yaml]
+----
+logging.level:
+  org.springframework.security: trace
+----
+
+== Authorization Server
+
+=== Add Spring Authorization Server
+
+TIP: Click https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.1.2&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=auth-server&name=auth-server&description=Demo%20project%20for%20Spring%20Boot&packageName=academy.spring.auth-server&dependencies=web,oauth2-authorization-server[Open Project^] to view a pre-configured project on start.spring.io.
+
+Add the following to `application.yml`:
+
+[source,yaml]
+----
+server:
+  port: 9000
+
+logging:
+  level:
+    org.springframework.security: trace
+
+spring:
+  security:
+    user:
+      name: spring
+      password: spring
+    oauth2:
+      authorizationserver:
+        client:
+          oidc-client:
+            registration:
+              client-id: "oidc-client"
+              client-secret: "{noop}oidc"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://127.0.0.1:8080/login/oauth2/code/oidc-client"
+              post-logout-redirect-uris:
+                - "http://127.0.0.1:8080/"
+              scopes:
+                - "openid"
+                - "profile"
+                - "cashcard:read"
+                - "cashcard:write"
+            require-authorization-consent: true
+          cashcard-client:
+            registration:
+              client-id: "cashcard-client"
+              client-secret: "{noop}secret"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "client_credentials"
+              scopes:
+                - "cashcard:read"
+                - "cashcard:write"
+----
+
+=== Add `UserDetailsService`
+
+Add the following `@Bean` to `AuthServerApplication`:
+
+[source,java]
+----
+@Bean
+public UserDetailsService userDetailsService() {
+	UserDetails steve = User.withDefaultPasswordEncoder()
+		.username("steve")
+		.password("password")
+		.roles("USER")
+		.build();
+	UserDetails ria = User.withDefaultPasswordEncoder()
+		.username("ria")
+		.password("password")
+		.roles("USER")
+		.build();
+	UserDetails josh = User.withDefaultPasswordEncoder()
+		.username("josh")
+		.password("password")
+		.roles("USER")
+		.build();
+	return new InMemoryUserDetailsManager(steve, ria, josh);
+}
+----
+
+=== Configure `issuer-uri`
+
+Change `application.yml` in the `api` application to contain the following:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://localhost:9000"
+----
+
+== Client
+
+=== Add OAuth2 Client
+
+TIP: Click https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.1.2&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=client&name=client&description=Demo%20project%20for%20Spring%20Boot&packageName=academy.spring.client&dependencies=webflux,oauth2-client[Open Project^] to view a pre-configured project on start.spring.io.
+
+Add the following to `application.yml`:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc-client:
+            client-id: "oidc-client"
+            client-secret: "oidc"
+            provider: "spring"
+            scope:
+              - "openid"
+              - "profile"
+              - "cashcard:read"
+              - "cashcard:write"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+        provider:
+          spring:
+            issuer-uri: "http://localhost:9000"
+----
+
+=== Switch to port 8090
+
+Add the following to `application.yml` in the `api` project:
+
+[source,yaml]
+----
+server:
+  port: 8090
+----
+
+=== Add `CashCardController`
+
+Create the following controller:
+
+[source,java]
+----
+@RestController
+public class CashCardController {
+
+	private final WebClient webClient;
+
+	public CashCardController(WebClient.Builder webClientBuilder) {
+		this.webClient = webClientBuilder
+			.baseUrl("http://localhost:8090")
+			.build();
+	}
+
+	@GetMapping("/cashcards")
+	public Mono<CashCard[]> getCashCards(
+		@RegisteredOAuth2AuthorizedClient("oidc-client")
+		OAuth2AuthorizedClient authorizedClient) {
+
+		String accessToken = authorizedClient.getAccessToken().getTokenValue();
+		return this.webClient.get()
+			.uri("/cashcards")
+			.headers(headers -> headers.setBearerAuth(accessToken))
+			.retrieve()
+			.bodyToMono(CashCard[].class);
+	}
+
+	record CashCard(Long id, Double amount, String owner) {
+	}
+
+}
+----
+
+=== Use `ExchangeFilterFunction`
+
+Add the following `@Bean` to `ClientApplication`:
+
+[source,java]
+----
+@Bean
+public ServerOAuth2AuthorizedClientExchangeFilterFunction oauth2(
+		ReactiveClientRegistrationRepository clientRegistrationRepository,
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	return new ServerOAuth2AuthorizedClientExchangeFilterFunction(
+			clientRegistrationRepository, authorizedClientRepository);
+}
+----
+
+Change `HelloController` to contain the following:
+
+[source,java]
+----
+import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId;
+
+@RestController
+public class CashCardController {
+
+	private final WebClient webClient;
+
+	public CashCardController(WebClient.Builder webClientBuilder,
+				ServerOAuth2AuthorizedClientExchangeFilterFunction oauth2) {
+		this.webClient = webClientBuilder
+			.baseUrl("http://localhost:8090")
+			.filter(oauth2)
+			.build();
+	}
+
+	@GetMapping("/cashcards")
+	public Mono<CashCard[]> getCashCards() {
+		return this.webClient.get()
+				.uri("/cashcards")
+				.attributes(clientRegistrationId("oidc-client"))
+				.retrieve()
+				.bodyToMono(CashCard[].class);
+	}
+
+	record CashCard(Long id, Double amount, String owner) {
+	}
+
+}
+----
+
+== BFF (backend for frontend)
+
+=== Add Spring Cloud Gateway
+
+Add the following to `build.gradle` in the `client` project:
+
+[source,gradle]
+----
+ext {
+	set('springCloudVersion', "2023.0.0-M1")
+}
+
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+	// ...
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+----
+
+TIP: Alternatively, click https://start.spring.io/#!type=gradle-project&language=java&platformVersion=3.1.2&packaging=jar&jvmVersion=17&groupId=com.example&artifactId=client&name=client&description=Demo%20project%20for%20Spring%20Boot&packageName=academy.spring.client&dependencies=webflux,oauth2-client,cloud-gateway[Open Project^], click Explore and copy/paste the entire `build.gradle`.
+
+=== Route with `TokenRelay`
+
+Add the following to `application.yml`:
+
+[source,yaml]
+----
+spring:
+  security:
+    # ...
+  cloud:
+    gateway:
+      routes:
+        - id: cashcards
+          uri: http://localhost:8090
+          predicates:
+            - Path=/cashcards/**
+          filters:
+            - TokenRelay=
+----
+
+== Add persistence (optional)
+
+=== Persist Authorizations in a Database
+
+Add the following dependencies in the `client` project:
+
+[source,gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+runtimeOnly 'io.asyncer:r2dbc-mysql:1.0.2'
+----
+
+NOTE: This example uses a third-party R2DBC driver for MySQL, but you can replace it with the appropriate driver for another database such as PostgreSQL, Oracle, SQL*Server, etc.
+
+Add the following to `application.yml`:
+
+[source,yaml]
+----
+spring:
+  security:
+    # ...
+  cloud:
+    # ...
+  sql:
+    init:
+      schema-locations:
+        - "classpath:org/springframework/security/oauth2/client/oauth2-client-schema.sql"
+      continue-on-error: true
+      mode: always
+  r2dbc:
+    url: "r2dbc:mysql://localhost:3306/oauth2_workshop?serverZoneId=America/Chicago"
+    username: "spring"
+    password: "spring"
+----
+
+Run the following commands using the MySQL CLI:
+
+	create database oauth2_workshop;
+	create user 'spring' identified by 'spring';
+	grant all privileges on oauth2_workshop.* to 'spring'@'%';
+	flush privileges;
+
+Add the following `@Bean` to `ClientApplication`:
+
+[source,java]
+----
+@Bean
+public ReactiveOAuth2AuthorizedClientService authorizedClientService(
+		DatabaseClient db,
+		ReactiveClientRegistrationRepository clientRegistrationRepository) {
+
+	return new R2dbcReactiveOAuth2AuthorizedClientService(db, clientRegistrationRepository);
+}
+----
+
+=== Persist sessions in Redis
+
+Add the following dependencies in the `client` project:
+
+[source,gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+implementation 'org.springframework.session:spring-session-data-redis'
+----
+
+TIP: You can start a local Redis instance with https://hub.docker.com/_/redis[Docker] by running `docker run --name redis -p 6379:6379 -d redis`
+
+== Federated login
+
+NOTE: This section is adapted from https://docs.spring.io/spring-authorization-server/reference/guides/how-to-social-login.html[How-to: Authenticate using Social Login].
+
+=== Add federated login with Auth0
+
+Add the following dependency in the `auth-server` project:
+
+[source,gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+----
+
+Add the following to `application.yml`:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        # ...
+      client:
+        registration:
+          auth0:
+            provider: auth0
+            client-id: ${auth0.client-id}
+            client-secret: ${auth0.client-secret}
+            client-name: Auth0
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          auth0:
+            issuer-uri: ${auth0.base-url}
+            user-name-attribute: email
+
+auth0:
+  base-url: "https://vmware-explore-23.us.auth0.com/"
+  client-id: "client-id"
+  client-secret: "client-secret"
+----
+
+NOTE: Actual Auth0 credentials will be made available https://gist.github.com/sjohnr/86808ddbfd66fc94c16aced5fbada932[here] during the workshop.
+
+Create `SecurityConfig` and add the following:
+
+[source,java]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	@Order(1)
+	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
+			throws Exception {
+		OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+			.oidc(Customizer.withDefaults());
+		http
+			.exceptionHandling(exceptions -> exceptions
+				.defaultAuthenticationEntryPointFor(
+					new LoginUrlAuthenticationEntryPoint("/login"),
+					new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+				)
+			)
+			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+				.jwt(Customizer.withDefaults())
+			);
+
+		return http.build();
+	}
+
+	@Bean
+	@Order(2)
+	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+			throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated()
+			)
+			.formLogin(Customizer.withDefaults())
+			.oauth2Login(Customizer.withDefaults());
+
+		return http.build();
+	}
+
+}
+----
+
+=== Add custom login page
+
+Add the following dependency to the `auth-server` project:
+
+[source,gradle]
+----
+implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+----
+
+Create `LoginController` and add the following:
+
+[source,java]
+----
+@Controller
+public class LoginController {
+
+	@GetMapping("/login")
+	public String login() {
+		return "login";
+	}
+
+}
+----
+
+Create `login.html` in `src/main/resources/templates` and add the following:
+
+[source,html]
+----
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!--
+        Based on Bootstrap Login Page
+        https://codepen.io/xmas1224/pen/MWJqbao
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Spring Security and OAuth 2.0: Step-by-Step (Workshop)</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+        body {
+            background: #222D32;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .login-box {
+            margin-top: 75px;
+            height: auto;
+            background: #1A2226;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
+        .alert {
+            margin-top: 25px;
+        }
+
+        .login-icon {
+            height: 100px;
+            font-size: 80px;
+            line-height: 100px;
+            background: -webkit-linear-gradient(#27EF9F, #0DB8DE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-title {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: #ECF0F5;
+        }
+
+        .login-form {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        input[type=text] {
+            background-color: #1A2226;
+            border: none;
+            border-bottom: 2px solid #0DB8DE;
+            border-top: 0;
+            border-radius: 0;
+            font-weight: bold;
+            outline: 0;
+            margin-bottom: 20px;
+            padding-left: 0;
+            color: #ECF0F5;
+        }
+
+        input[type=password] {
+            background-color: #1A2226;
+            border: none;
+            border-bottom: 2px solid #0DB8DE;
+            border-top: 0;
+            border-radius: 0;
+            font-weight: bold;
+            outline: 0;
+            padding-left: 0;
+            margin-bottom: 20px;
+            color: #ECF0F5;
+        }
+
+        .form-input {
+            margin-bottom: 40px;
+        }
+
+        .form-control:focus {
+            border-color: inherit;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border-bottom: 2px solid #0DB8DE;
+            outline: 0;
+            background-color: #1A2226;
+            color: #ECF0F5;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0;
+        }
+
+        label {
+            margin-bottom: 0;
+        }
+
+        .form-control-label {
+            font-size: 10px;
+            color: #6C6C6C;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn-outline-primary {
+            border-color: #0DB8DE;
+            color: #0DB8DE;
+            border-radius: 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #0DB8DE;
+            right: 0;
+        }
+
+        .login-text {
+            text-align: left;
+            padding-left: 0;
+            color: #A2A4A4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-text">
+                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                        Invalid username or password.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success" role="alert">
+                        You have been logged out.
+                    </div>
+                </div>
+                <div class="col-lg-12 login-icon">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="col-lg-12 login-title">
+                    <span>LOG IN</span>
+                </div>
+                <div class="col-lg-12 login-form">
+                    <form method="post" th:action="@{/login}">
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="username">USERNAME</label>
+                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                        </div>
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="password">PASSWORD</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-block btn-outline-primary">LOG IN</button>
+                        </div>
+                        <div class="form-group text-center">
+                            <span class="form-control-label">&ndash; OR &ndash;</span>
+                        </div>
+                        <div class="form-group">
+                            <a class="btn btn-block btn-outline-primary" href="/oauth2/authorization/auth0" role="link">
+                                <img class="mr-1" src="https://cdn.auth0.com/styleguide/components/1.0.8/media/logos/img/badge.png" width="20" alt="Sign in with Auth0">
+                                Sign in with Auth0
+                                <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+        </div>
+    </div>
+
+</body>
+</html>
+----
