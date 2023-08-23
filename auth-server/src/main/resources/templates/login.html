@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!--
+        Based on Bootstrap Login Page
+        https://codepen.io/xmas1224/pen/MWJqbao
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Spring Security and OAuth 2.0: Step-by-Step (Workshop)</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+        body {
+            background: #222D32;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .login-box {
+            margin-top: 75px;
+            height: auto;
+            background: #1A2226;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+
+        .alert {
+            margin-top: 25px;
+        }
+
+        .login-icon {
+            height: 100px;
+            font-size: 80px;
+            line-height: 100px;
+            background: -webkit-linear-gradient(#27EF9F, #0DB8DE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-title {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 30px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            color: #ECF0F5;
+        }
+
+        .login-form {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        input[type=text] {
+            background-color: #1A2226;
+            border: none;
+            border-bottom: 2px solid #0DB8DE;
+            border-top: 0;
+            border-radius: 0;
+            font-weight: bold;
+            outline: 0;
+            margin-bottom: 20px;
+            padding-left: 0;
+            color: #ECF0F5;
+        }
+
+        input[type=password] {
+            background-color: #1A2226;
+            border: none;
+            border-bottom: 2px solid #0DB8DE;
+            border-top: 0;
+            border-radius: 0;
+            font-weight: bold;
+            outline: 0;
+            padding-left: 0;
+            margin-bottom: 20px;
+            color: #ECF0F5;
+        }
+
+        .form-input {
+            margin-bottom: 40px;
+        }
+
+        .form-control:focus {
+            border-color: inherit;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border-bottom: 2px solid #0DB8DE;
+            outline: 0;
+            background-color: #1A2226;
+            color: #ECF0F5;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0;
+        }
+
+        label {
+            margin-bottom: 0;
+        }
+
+        .form-control-label {
+            font-size: 10px;
+            color: #6C6C6C;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .btn-outline-primary {
+            border-color: #0DB8DE;
+            color: #0DB8DE;
+            border-radius: 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #0DB8DE;
+            right: 0;
+        }
+
+        .login-text {
+            text-align: left;
+            padding-left: 0;
+            color: #A2A4A4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-text">
+                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                        Invalid username or password.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success" role="alert">
+                        You have been logged out.
+                    </div>
+                </div>
+                <div class="col-lg-12 login-icon">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                </div>
+                <div class="col-lg-12 login-title">
+                    <span>LOG IN</span>
+                </div>
+                <div class="col-lg-12 login-form">
+                    <form method="post" th:action="@{/login}">
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="username">USERNAME</label>
+                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                        </div>
+                        <div class="form-group form-input">
+                            <label class="form-control-label" for="password">PASSWORD</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-block btn-outline-primary">LOG IN</button>
+                        </div>
+                        <div class="form-group text-center">
+                            <span class="form-control-label">&ndash; OR &ndash;</span>
+                        </div>
+                        <div class="form-group">
+                            <a class="btn btn-block btn-outline-primary" href="/oauth2/authorization/auth0" role="link">
+                                <img class="mr-1" src="https://cdn.auth0.com/styleguide/components/1.0.8/media/logos/img/badge.png" width="20" alt="Sign in with Auth0">
+                                Sign in with Auth0
+                                <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-2"></div>
+        </div>
+    </div>
+
+</body>
+</html>

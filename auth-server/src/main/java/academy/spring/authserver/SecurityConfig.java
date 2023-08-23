@@ -44,10 +44,11 @@ public class SecurityConfig {
 			throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers("/login").permitAll()
 				.anyRequest().authenticated()
 			)
-			.formLogin(Customizer.withDefaults())
-			.oauth2Login(Customizer.withDefaults());
+			.formLogin((formLogin) -> formLogin.loginPage("/login"))
+			.oauth2Login((oauth2Login) -> oauth2Login.loginPage("/login"));
 
 		return http.build();
 	}
