@@ -40,3 +40,23 @@ spring:
               scopes:
                 - "cashcard:read"
                 - "cashcard:write"
+      client:
+        registration:
+          auth0:
+            provider: auth0
+            client-id: ${auth0.client-id}
+            client-secret: ${auth0.client-secret}
+            client-name: Auth0
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          auth0:
+            issuer-uri: ${auth0.base-url}
+            user-name-attribute: email
+
+auth0:
+  base-url: "https://vmware-explore-23.us.auth0.com/"
+  client-id: "client-id"
+  client-secret: "client-secret"
