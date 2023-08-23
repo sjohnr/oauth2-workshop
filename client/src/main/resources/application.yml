@@ -27,3 +27,13 @@ spring:
             - Path=/cashcards/**
           filters:
             - TokenRelay=
+  sql:
+    init:
+      schema-locations:
+        - "classpath:org/springframework/security/oauth2/client/oauth2-client-schema.sql"
+      continue-on-error: true
+      mode: always
+  r2dbc:
+    url: "r2dbc:mysql://localhost:3306/oauth2_workshop?serverZoneId=America/Chicago"
+    username: "spring"
+    password: "spring"
