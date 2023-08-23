@@ -3,6 +3,8 @@ package academy.spring.cashcard;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ public class CashCardController {
     }
 
     @GetMapping("/{requestedId}")
+    @PostAuthorize("returnObject.body.owner == authentication.name")
     public ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
         return this.cashcards.findById(requestedId)
                 .map(ResponseEntity::ok)
