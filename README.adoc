@@ -15,9 +15,9 @@ To prepare for the workshop, perform the following steps ahead of time:
 
 	git clone https://github.com/sjohnr/oauth2-workshop.git && cd oauth2-workshop
 
-2. Check out the `develop` branch:
+2. Check out the `solution` branch:
 
-	git checkout develop
+	git checkout solution
 
 3. Download dependencies so they are cached:
 
