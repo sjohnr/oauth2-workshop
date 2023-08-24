@@ -6,13 +6,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 	@Bean
-	SecurityFilterChain rest(HttpSecurity http) throws Exception {
+	SecurityFilterChain rest(HttpSecurity http, AuthenticationEntryPoint entryPoint) throws Exception {
 		http
 			.authorizeHttpRequests((authz) -> authz
 				.requestMatchers(HttpMethod.GET, "/cashcards/**").hasAuthority("SCOPE_cashcard:read")
@@ -20,6 +21,7 @@ public class SecurityConfig {
 			)
 			.oauth2ResourceServer((jwt) -> jwt
 				.jwt(Customizer.withDefaults())
+				.authenticationEntryPoint(entryPoint)
 			);
 
 		return http.build();
