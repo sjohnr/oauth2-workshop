@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 
 @Controller
@@ -16,6 +17,11 @@ public class LoginController {
 		return ResponseEntity.status(HttpStatus.FOUND)
 			.location(URI.create("/oauth2/authorization/oidc-client"))
 			.build();
+	}
+
+	@GetMapping("/callback")
+	@ResponseStatus(HttpStatus.OK)
+	public void callback() {
 	}
 
 }

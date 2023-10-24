@@ -5,13 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.logout.HttpStatusReturningServerLogoutSuccessHandler;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
-import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -19,25 +15,25 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+
 		http
 			.authorizeExchange((authorize) -> authorize
-				.pathMatchers("/login").permitAll()
+				.pathMatchers("/callback", "/login").permitAll()
 				.anyExchange().authenticated()
 			)
 			.oauth2Login((login) -> login
-				.authorizationRequestRepository(new WebSessionOAuth2ServerAuthorizationRequestRepository())
-				.authenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler())
+				.authorizationRequestRepository(new InMemoryServerAuthorizationRequestRepository())
+				.authenticationSuccessHandler(
+					new SecurityContextIdRedirectServerAuthenticationSuccessHandler("/callback"))
 			)
 			.logout((logout) -> logout
-				.logoutSuccessHandler(new HttpStatusReturningServerLogoutSuccessHandler(HttpStatus.OK))
+				.logoutSuccessHandler(new HttpStatusReturningServerLogoutSuccessHandler())
 			)
-			.securityContextRepository(new WebSessionServerSecurityContextRepository())
+			.securityContextRepository(new InMemoryServerSecurityContextRepository())
 			.exceptionHandling((exceptions) -> exceptions
-				.authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/login"))
+				.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED))
 			)
-			.csrf((csrf) -> csrf
-				.csrfTokenRepository(new WebSessionServerCsrfTokenRepository())
-			);
+			.csrf(ServerHttpSecurity.CsrfSpec::disable);
 
 		return http.build();
 	}
