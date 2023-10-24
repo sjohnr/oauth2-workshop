@@ -6,6 +6,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:app.pub
-          audiences: cashcard-client
           issuer-uri: http://localhost:9000
+
+logging:
+  level:
+    org.springframework.security: trace

@@ -28,7 +28,7 @@ spring:
                 - "profile"
                 - "cashcard:read"
                 - "cashcard:write"
-            require-authorization-consent: true
+            require-authorization-consent: false
           cashcard-client:
             registration:
               client-id: "cashcard-client"
