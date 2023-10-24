@@ -20,7 +20,7 @@ public class SecurityConfig {
 
 		http
 			.authorizeExchange((authorize) -> authorize
-				.pathMatchers("/callback", "/login").permitAll()
+				.pathMatchers("/", "/callback", "/login", "/favicon.ico").permitAll()
 				.anyExchange().authenticated()
 			)
 			.oauth2Login((login) -> login
