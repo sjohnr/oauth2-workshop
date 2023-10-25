@@ -1,4 +1,4 @@
-package academy.spring.mobileclient;
+package academy.spring.mobileclient.security;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

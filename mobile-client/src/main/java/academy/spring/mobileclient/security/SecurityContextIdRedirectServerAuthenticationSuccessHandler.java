@@ -1,4 +1,4 @@
-package academy.spring.mobileclient;
+package academy.spring.mobileclient.security;
 
 import reactor.core.publisher.Mono;
 
