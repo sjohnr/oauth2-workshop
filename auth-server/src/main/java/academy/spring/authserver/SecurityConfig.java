@@ -25,13 +25,13 @@ public class SecurityConfig {
 		http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
 			.oidc(Customizer.withDefaults());
 		http
-			.exceptionHandling(exceptions -> exceptions
+			.exceptionHandling((exceptions) -> exceptions
 				.defaultAuthenticationEntryPointFor(
 					new LoginUrlAuthenticationEntryPoint("/login"),
 					new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
 				)
 			)
-			.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+			.oauth2ResourceServer((oauth2) -> oauth2
 				.jwt(Customizer.withDefaults())
 			);
 
@@ -43,7 +43,7 @@ public class SecurityConfig {
 	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
 			throws Exception {
 		http
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers("/login").permitAll()
 				.anyRequest().authenticated()
 			)
