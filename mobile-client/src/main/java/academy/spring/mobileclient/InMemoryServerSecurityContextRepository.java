@@ -19,7 +19,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 public class InMemoryServerSecurityContextRepository implements ServerSecurityContextRepository {
 
-	public static final String SECURITY_CONTEXT_ID_ATTR_NAME = ServerSecurityContextRepository.class.getName() + ".SECURITY_CONTEXT_ID";
+	private static final String SECURITY_CONTEXT_ID_ATTR_NAME = ServerSecurityContextRepository.class.getName() + ".SECURITY_CONTEXT_ID";
 
 	private final Map<String, SecurityContext> securityContexts = new ConcurrentHashMap<>();
 
@@ -77,7 +77,7 @@ public class InMemoryServerSecurityContextRepository implements ServerSecurityCo
 		return () -> new String(Hex.encode(bytesKeyGenerator.generateKey())).toUpperCase();
 	}
 
-	static class BearerTokenResolver implements Function<ServerWebExchange, String> {
+	private static class BearerTokenResolver implements Function<ServerWebExchange, String> {
 
 		@Override
 		public String apply(ServerWebExchange exchange) {

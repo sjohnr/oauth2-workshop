@@ -6,12 +6,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static academy.spring.mobileclient.InMemoryServerSecurityContextRepository.SECURITY_CONTEXT_ID_ATTR_NAME;
-
 public class SecurityContextIdRedirectServerAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
+
+	private static final String SECURITY_CONTEXT_ID_ATTR_NAME = ServerSecurityContextRepository.class.getName() + ".SECURITY_CONTEXT_ID";
 
 	private final String redirectUri;
 
