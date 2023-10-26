@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 public class InMemoryServerAuthorizationRequestRepository implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
@@ -20,6 +21,7 @@ public class InMemoryServerAuthorizationRequestRepository implements ServerAutho
 	}
 
 	private void saveAuthorizationRequestByState(OAuth2AuthorizationRequest authorizationRequest) {
+		Assert.hasText(authorizationRequest.getState(), "state cannot be empty");
 		this.requests.put(authorizationRequest.getState(), authorizationRequest);
 	}
 
@@ -30,6 +32,7 @@ public class InMemoryServerAuthorizationRequestRepository implements ServerAutho
 
 	private OAuth2AuthorizationRequest loadAuthorizationRequestByState(ServerWebExchange exchange) {
 		String state = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.STATE);
+		Assert.hasText(state, "state cannot be empty");
 		return this.requests.get(state);
 	}
 
@@ -40,6 +43,7 @@ public class InMemoryServerAuthorizationRequestRepository implements ServerAutho
 
 	private OAuth2AuthorizationRequest removeAuthorizationRequestByState(ServerWebExchange exchange) {
 		String state = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.STATE);
+		Assert.hasText(state, "state cannot be empty");
 		return this.requests.remove(state);
 	}
 
