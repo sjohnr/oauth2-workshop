@@ -26,11 +26,8 @@ public class CashCardController {
 
     @GetMapping("/{requestedId}")
     @PostAuthorize("returnObject.body.owner == authentication.name")
-    public ResponseEntity<CashCard> findById(
-            @PathVariable Long requestedId,
-            Authentication authentication) {
-
-        return this.cashCardService.getCashCard(authentication, requestedId)
+    public ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
+        return this.cashCardService.getCashCard(requestedId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -42,7 +39,7 @@ public class CashCardController {
             Authentication authentication) {
 
         CashCard responseBody = this.cashCardService.addCashCard(
-                authentication, requestBody.amount());
+                requestBody.amount(), authentication.getName());
 
         URI location = uriComponentsBuilder
                 .path("/cashcards/{id}")
@@ -54,7 +51,7 @@ public class CashCardController {
 
     @GetMapping
     public ResponseEntity<List<CashCard>> findAll(Authentication authentication) {
-        return ResponseEntity.ok(this.cashCardService.getCashCards(authentication));
+        return ResponseEntity.ok(this.cashCardService.getCashCards(authentication.getName()));
     }
 
 }

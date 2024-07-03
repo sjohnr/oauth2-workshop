@@ -11,3 +11,30 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:9000
+          audiences:
+            - "oidc-client"
+            - "cashcard-client"
+      client:
+        registration:
+          token-client:
+            client-id: "token-client"
+            client-secret: "token"
+            provider: "spring"
+            scope:
+              - "cashcard:read"
+              - "cashcard:write"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "urn:ietf:params:oauth:grant-type:token-exchange"
+        provider:
+          spring:
+            issuer-uri: "http://localhost:9000"
+  sql:
+    init:
+      schema-locations:
+        - "classpath:org/springframework/security/oauth2/client/oauth2-client-schema.sql"
+      continue-on-error: true
+      mode: always
+  datasource:
+    url: "jdbc:mysql://localhost:3306/api_db?serverZoneId=America/Chicago"
+    username: "spring"
+    password: "spring"

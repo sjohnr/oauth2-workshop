@@ -7,3 +7,4 @@ pluginManagement {
 include ':api'
 include ':auth-server'
 include ':client'
+include ':data-service'
