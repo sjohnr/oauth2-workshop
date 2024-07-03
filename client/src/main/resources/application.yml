@@ -14,17 +14,15 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             client-authentication-method: "client_secret_basic"
             authorization-grant-type: "authorization_code"
-          cashcard-client:
-            client-name: "Authorize CashCard Client"
-            client-id: "cashcard-client"
-            client-secret: "secret"
+          token-client:
+            client-id: "token-client"
+            client-secret: "token"
             provider: "spring"
             scope:
               - "cashcard:read"
               - "cashcard:write"
-            redirect-uri: "{baseUrl}/authorize/{registrationId}"
             client-authentication-method: "client_secret_basic"
-            authorization-grant-type: "authorization_code"
+            authorization-grant-type: "urn:ietf:params:oauth:grant-type:token-exchange"
         provider:
           spring:
             issuer-uri: "http://localhost:9000"
@@ -32,11 +30,11 @@ spring:
     gateway:
       routes:
         - id: cashcards
-          uri: http://localhost:8090
+          uri: http://localhost:8091
           predicates:
             - Path=/cashcards/**
           filters:
-            - TokenRelay=cashcard-client
+            - TokenRelay=token-client
   sql:
     init:
       schema-locations:
