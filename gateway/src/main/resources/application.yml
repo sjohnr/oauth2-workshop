@@ -24,7 +24,7 @@ spring:
               - "cashcard:write"
             redirect-uri: "{baseUrl}/authorize/{registrationId}"
             client-authentication-method: "client_secret_basic"
-            authorization-grant-type: "authorization_code"
+            authorization-grant-type: "urn:ietf:params:oauth:grant-type:token-exchange"
           purchase-client:
             client-name: "Purchase Client"
             client-id: "purchase-client"
@@ -34,7 +34,7 @@ spring:
               - "purchase:read"
             redirect-uri: "{baseUrl}/authorize/{registrationId}"
             client-authentication-method: "client_secret_basic"
-            authorization-grant-type: "authorization_code"
+            authorization-grant-type: "urn:ietf:params:oauth:grant-type:token-exchange"
         provider:
           spring:
             issuer-uri: "http://localhost:9000"

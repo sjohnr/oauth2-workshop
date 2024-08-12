@@ -34,14 +34,10 @@ spring:
               client-authentication-methods:
                 - "client_secret_basic"
               authorization-grant-types:
-                - "authorization_code"
-                - "refresh_token"
-              redirect-uris:
-                - "http://127.0.0.1:8080/authorize/cashcard-client"
+                - "urn:ietf:params:oauth:grant-type:token-exchange"
               scopes:
                 - "cashcard:read"
                 - "cashcard:write"
-            require-authorization-consent: true
           purchase-client:
             registration:
               client-id: "purchase-client"
@@ -49,10 +45,6 @@ spring:
               client-authentication-methods:
                 - "client_secret_basic"
               authorization-grant-types:
-                - "authorization_code"
-                - "refresh_token"
-              redirect-uris:
-                - "http://127.0.0.1:8080/authorize/purchase-client"
+                - "urn:ietf:params:oauth:grant-type:token-exchange"
               scopes:
                 - "purchase:read"
-            require-authorization-consent: true
