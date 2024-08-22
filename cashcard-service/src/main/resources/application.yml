@@ -12,4 +12,4 @@ spring:
         jwt:
           issuer-uri: "http://localhost:9000"
           audiences:
-            - "oidc-client"
+            - "cashcard-client"

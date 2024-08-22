@@ -11,10 +11,28 @@ spring:
             scope:
               - "openid"
               - "profile"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+          cashcard-client:
+            client-name: "CashCard Client"
+            client-id: "cashcard-client"
+            client-secret: "cashcard"
+            provider: "spring"
+            scope:
               - "cashcard:read"
               - "cashcard:write"
+            redirect-uri: "{baseUrl}/authorize/{registrationId}"
+            client-authentication-method: "client_secret_basic"
+            authorization-grant-type: "authorization_code"
+          purchase-client:
+            client-name: "Purchase Client"
+            client-id: "purchase-client"
+            client-secret: "purchase"
+            provider: "spring"
+            scope:
               - "purchase:read"
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "{baseUrl}/authorize/{registrationId}"
             client-authentication-method: "client_secret_basic"
             authorization-grant-type: "authorization_code"
         provider:
@@ -28,10 +46,10 @@ spring:
           predicates:
             - Path=/cashcards/*/purchases
           filters:
-            - TokenRelay=
+            - TokenRelay=purchase-client
         - id: cashcards
           uri: http://localhost:8090
           predicates:
             - Path=/cashcards/**
           filters:
-            - TokenRelay=
+            - TokenRelay=cashcard-client

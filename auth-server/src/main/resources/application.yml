@@ -26,7 +26,33 @@ spring:
               scopes:
                 - "openid"
                 - "profile"
+            require-authorization-consent: true
+          cashcard-client:
+            registration:
+              client-id: "cashcard-client"
+              client-secret: "{noop}cashcard"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://127.0.0.1:8080/authorize/cashcard-client"
+              scopes:
                 - "cashcard:read"
                 - "cashcard:write"
+            require-authorization-consent: true
+          purchase-client:
+            registration:
+              client-id: "purchase-client"
+              client-secret: "{noop}purchase"
+              client-authentication-methods:
+                - "client_secret_basic"
+              authorization-grant-types:
+                - "authorization_code"
+                - "refresh_token"
+              redirect-uris:
+                - "http://127.0.0.1:8080/authorize/purchase-client"
+              scopes:
                 - "purchase:read"
             require-authorization-consent: true
