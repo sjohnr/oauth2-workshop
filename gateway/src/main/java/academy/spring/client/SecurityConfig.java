@@ -4,8 +4,6 @@ import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayReactiveOAuth2AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -25,7 +23,6 @@ import org.springframework.security.web.server.authentication.RedirectServerAuth
 
 @Configuration
 @EnableWebFluxSecurity
-@EnableAutoConfiguration(exclude = GatewayReactiveOAuth2AutoConfiguration.class)
 public class SecurityConfig {
 
 	@Bean
