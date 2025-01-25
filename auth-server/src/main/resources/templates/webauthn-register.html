@@ -17,17 +17,22 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="icon" type="image/png" href="/assets/img/security.png">
     <link href="/assets/css/style.css" rel="stylesheet">
-
     <script type="text/javascript" src="/login/webauthn.js"></script>
     <script type="text/javascript">
+        const ui = {
+            getLabelInput:     () => document.getElementById('label'),
+            getRegisterButton: () => document.getElementById('register'),
+            getDeleteForms:    () => Array.from(document.getElementsByClassName('delete-form')),
+            getSuccess:        () => document.getElementById('success'),
+            getError:          () => document.getElementById('error')
+        };
         const contextPath      = document.querySelector('meta[name="context-path"]').content;
         const csrfToken        = document.querySelector('meta[name="csrf-token"]').content;
         const csrfHeaderName   = document.querySelector('meta[name="csrf-header-name"]').content;
         const headers = {};
         headers[csrfHeaderName] = csrfToken;
-        document.addEventListener('DOMContentLoaded', () => setupLogin(headers, contextPath, document.getElementById('passkey-signin-button')));
+        document.addEventListener('DOMContentLoaded', () => setupRegistration(headers, contextPath, ui));
     </script>
-
 </head>
 <body>
 
@@ -36,49 +41,42 @@
             <div class="col-lg-3 col-md-2"></div>
             <div class="col-lg-6 col-md-8 login-box">
                 <div class="col-lg-12 login-text">
-                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                        Invalid username or password.
-                    </div>
-                    <div th:if="${param.logout}" class="alert alert-success" role="alert">
-                        You have been logged out.
-                    </div>
+                    <div class="alert alert-danger" role="alert" id="error" style="display: none;"></div>
+                    <div class="alert alert-success" role="alert" id="success" style="display: none;">Passkeys updated successfully!</div>
                 </div>
                 <div class="col-lg-12 login-icon">
                     <i class="fa fa-user" aria-hidden="true"></i>
                 </div>
                 <div class="col-lg-12 login-title">
-                    <span>LOG IN</span>
+                    <span>Create Passkey</span>
                 </div>
                 <div class="col-lg-12 login-form">
-                    <form method="post" th:action="@{/login}">
-                        <div class="form-group form-input">
-                            <label class="form-control-label" for="username">USERNAME</label>
-                            <input type="text" id="username" name="username" class="form-control" required autofocus>
+                    <form method="post" th:action="@{/webauthn/register/options}" onsubmit="return false">
+                        <div class="form-group">
+                            <span class="form-control-label">To create a passkey, enter a label such as iCloud, 1Password, or Chrome.</span>
                         </div>
                         <div class="form-group form-input">
-                            <label class="form-control-label" for="password">PASSWORD</label>
-                            <input type="password" id="password" name="password" class="form-control" required>
+                            <label class="form-control-label" for="label">PASSKEY LABEL</label>
+                            <input type="text" id="label" name="label" class="form-control" required autofocus>
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-block btn-outline-primary">LOG IN</button>
+                            <button type="submit" class="btn btn-block btn-outline-primary" id="register">CREATE PASSKEY</button>
+                        </div>
+                        <div class="form-group">
+                            <a href="/account" class="btn btn-block btn-outline-secondary" onclick="history.back()">MY ACCOUNT</a>
                         </div>
                     </form>
-                    <div class="form-group text-center">
-                        <span class="form-control-label small">&ndash; OR &ndash;</span>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" id="passkey-signin-button" class="btn btn-block btn-outline-success">Sign in with a passkey</button>
-                    </div>
-                    <div class="form-group text-center">
-                        <span class="form-control-label small">&ndash; OR &ndash;</span>
-                    </div>
-                    <div class="form-group">
-                        <a class="btn btn-block btn-outline-secondary" href="/oauth2/authorization/auth0" role="link">
-                            <img class="mr-1" src="https://cdn.auth0.com/styleguide/components/1.0.8/media/logos/img/badge.png" width="20" alt="Sign in with Auth0">
-                            Sign in with Auth0
-                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                        </a>
-                    </div>
+                </div>
+                <div class="col-lg-12 login-title" th:if="${!credentials.isEmpty()}">
+                    <span>Manage Passkeys</span>
+                </div>
+                <div class="col-lg-12 login-form" th:if="${!credentials.isEmpty()}">
+                    <form class="delete-form" method="post" th:action="@{${'/webauthn/register/' + credential.credentialId.toBase64UrlString()}}" th:each="credential: ${credentials}">
+                        <div class="form-group">
+                            <input type="hidden" name="method" value="delete">
+                            <button type="submit" class="btn btn-block btn-outline-danger" th:text="${'Delete ' + credential.label}"></button>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="col-lg-3 col-md-2"></div>
